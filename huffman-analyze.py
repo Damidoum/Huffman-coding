@@ -15,10 +15,8 @@ class Language:
     def train(self, file: str):
         """Train the Language with a text"""
         with open(file, "r") as f:
-            for line in f.readlines():
-                self.count["\\n"] += 1
-                for char in line[:-1]:
-                    self.count[char] += 1
+            content = f.read()
+            self.count += Counter(content)
             f.close()
 
     def save_count_as_json(self, file: str):
