@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from collections import Counter
+import json
 
 
 class Language:
@@ -20,15 +21,12 @@ class Language:
                     self.count[char] += 1
             f.close()
 
-    def save_count_as_txt(self):
-        with open(self.name + "_count.txt", "w") as f:
-            for key, val in self.count.items():
-                f.write(key + ", " + str(val) + "\n")
+    def save_count_as_json(self, file: str):
+        with open(file, "w") as f:
+            json.dump(self.count, f)
             f.close()
 
-    def load_count_txt(self, file: str):
+    def load_count_json(self, file: str):
         with open(file, "r") as f:
-            for line in f.readlines():
-                key, val = line.split(", ")
-                self.count[key] += int(val)
+            self.count = json.load(f)
             f.close()
