@@ -28,3 +28,24 @@ class Language:
         with open(file, "r") as f:
             self.count = json.load(f)
             f.close()
+
+
+def huffman(count_characters: Counter) -> dict:
+    count_characters_copy = count_characters.copy()
+    code = {}
+
+    while len(count_characters_copy) > 1:
+        (l_inf, n_inf), (l_sup, n_sup) = count_characters_copy.most_common()[-1:-3:-1]
+        del count_characters_copy[l_inf]
+        del count_characters_copy[l_sup]
+        count_characters_copy[l_inf + " " + l_sup] = n_inf + n_sup
+        for char in l_inf.split(" "):
+            code[char] = "0" + code.get(char, "")
+        for char in l_sup.split(" "):
+            code[char] = "1" + code.get(char, "")
+    return code
+
+
+english = Language("english")
+english.train("../python-eval-groupe1/sample-01.txt")
+print(huffman(english.count))
