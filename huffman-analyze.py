@@ -5,7 +5,7 @@ import json
 
 
 class Language:
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         self.name = name
         self.count = Counter()
 
@@ -30,22 +30,43 @@ class Language:
             f.close()
 
 
-def huffman(count_characters: Counter) -> dict:
-    count_characters_copy = count_characters.copy()
-    code = {}
+class Huffman:
+    def __init__(self, language: Language) -> None:
+        self.language = language
+        self.code = {}
 
-    while len(count_characters_copy) > 1:
-        (l_inf, n_inf), (l_sup, n_sup) = count_characters_copy.most_common()[-1:-3:-1]
-        del count_characters_copy[l_inf]
-        del count_characters_copy[l_sup]
-        count_characters_copy[l_inf + " " + l_sup] = n_inf + n_sup
-        for char in l_inf.split(" "):
-            code[char] = "0" + code.get(char, "")
-        for char in l_sup.split(" "):
-            code[char] = "1" + code.get(char, "")
-    return code
+    def __repr__(self) -> str:
+        return self.language.__repr__()
+
+    def generate_code(self) -> None:
+        count_characters_copy = self.language.count.copy()
+        self.code = {}
+
+        while len(count_characters_copy) > 1:
+            (l_inf, n_inf), (l_sup, n_sup) = count_characters_copy.most_common()[
+                -1:-3:-1
+            ]
+            del count_characters_copy[l_inf]
+            del count_characters_copy[l_sup]
+            count_characters_copy[l_inf + " " + l_sup] = n_inf + n_sup
+            for char in l_inf.split(" "):
+                self.code[char] = "0" + self.code.get(char, "")
+            for char in l_sup.split(" "):
+                self.code[char] = "1" + self.code.get(char, "")
+
+    def save_code(self):
+        with open("code.coder", "w") as f:
+            data = str(self.code)
+            f.write(data)
+            f.close()
 
 
 english = Language("english")
 english.train("../python-eval-groupe1/sample-01.txt")
-print(huffman(english.count))
+
+test = Huffman(english)
+test.generate_code()
+test.save_code()
+
+
+
