@@ -2,6 +2,7 @@
 
 from collections import Counter
 import json
+import argparse
 
 
 class Language:
@@ -53,3 +54,21 @@ class Language:
             f.close()
 
 
+# Creation english Class :
+english = Language("english")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file")
+    parser.add_argument("--coder", "-c")
+    args = parser.parse_args()
+
+    english.train(args.file)
+    if args.coder != None:
+        if args.coder != "":
+            english.generate_code()
+            english.save_code(args.coder)
+        else:
+            name_file = args.file.split(".")[0] + ".coder"
+            english.generate_code()
+            english.save_code(name_file)

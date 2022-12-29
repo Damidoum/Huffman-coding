@@ -1,3 +1,6 @@
+import argparse
+
+
 def get_code_from_file(file: str) -> dict:
     dic = {}
     with open(file, "r") as f:
@@ -50,3 +53,12 @@ def decode_file(encode_file: str, dic: dict, output_file: str) -> None:
     with open(output_file, "w") as f:
         f.write(out)
         f.close()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file")
+    parser.add_argument("--decode", "-d")
+    parser.add_argument("--output", "-o")
+    parser.add_argument("--coder", "-c", default="english.coder")
+    args = parser.parse_args()
