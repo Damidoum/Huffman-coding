@@ -48,10 +48,10 @@ class Huffman:
             ]
             del count_characters_copy[l_inf]
             del count_characters_copy[l_sup]
-            count_characters_copy[l_inf + " " + l_sup] = n_inf + n_sup
-            for char in l_inf.split(" "):
+            count_characters_copy[l_inf + "\\" + l_sup] = n_inf + n_sup
+            for char in l_inf.split("\\"):
                 self.code[char] = "0" + self.code.get(char, "")
-            for char in l_sup.split(" "):
+            for char in l_sup.split("\\"):
                 self.code[char] = "1" + self.code.get(char, "")
 
     def save_code(self):
@@ -67,6 +67,3 @@ english.train("../python-eval-groupe1/sample-01.txt")
 test = Huffman(english)
 test.generate_code()
 test.save_code()
-
-
-
