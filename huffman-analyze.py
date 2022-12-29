@@ -59,11 +59,3 @@ class Huffman:
             data = str(self.code)
             f.write(data)
             f.close()
-
-
-english = Language("english")
-english.train("../python-eval-groupe1/sample-01.txt")
-
-test = Huffman(english)
-test.generate_code()
-test.save_code()

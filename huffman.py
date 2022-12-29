@@ -14,7 +14,7 @@ def get_code_from_file(file: str) -> dict:
     return dic
 
 
-def encode_file(file: str, code: str, output: str):
+def encode_file(file: str, code: str, output: str) -> None :
     dic = get_code_from_file(code)
     output_file = open(output, "w")
     with open(file, "r") as f:
@@ -25,7 +25,3 @@ def encode_file(file: str, code: str, output: str):
         f.close()
     output_file.close()
 
-
-dic = get_code_from_file("code.coder")
-print(dic)
-encode_file("../python-eval-groupe1/sample-01.txt", "code.coder", "output.txt")
