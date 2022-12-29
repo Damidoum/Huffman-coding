@@ -8,6 +8,7 @@ class Language:
     def __init__(self, name: str) -> None:
         self.name = name
         self.count = Counter()
+        self.code = {}
 
     def __repr__(self) -> str:
         return self.name
@@ -29,17 +30,8 @@ class Language:
             self.count = json.load(f)
             f.close()
 
-
-class Huffman:
-    def __init__(self, language: Language) -> None:
-        self.language = language
-        self.code = {}
-
-    def __repr__(self) -> str:
-        return self.language.__repr__()
-
     def generate_code(self) -> None:
-        count_characters_copy = self.language.count.copy()
+        count_characters_copy = self.count.copy()
         self.code = {}
 
         while len(count_characters_copy) > 1:
@@ -63,6 +55,5 @@ class Huffman:
 
 english = Language("english")
 english.train("data/english.txt")
-huff = Huffman(english)
-huff.generate_code()
-huff.save_code("english.coder")
+english.generate_code()
+english.save_code("english.coder")
