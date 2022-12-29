@@ -54,8 +54,15 @@ class Huffman:
             for char in l_sup.split("\\"):
                 self.code[char] = "1" + self.code.get(char, "")
 
-    def save_code(self):
-        with open("code.coder", "w") as f:
+    def save_code(self, file):
+        with open(file, "w") as f:
             data = str(self.code)
             f.write(data)
             f.close()
+
+
+english = Language("english")
+english.train("data/english.txt")
+huff = Huffman(english)
+huff.generate_code()
+huff.save_code("english.coder")
