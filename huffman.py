@@ -26,7 +26,7 @@ def encode_file(file: str, code: str, output: str) -> None:
     output_file.close()
 
 
-def decode_file(encode_file: str, code: dict, output_file: str) -> None:
+def decode_file(encode_file: str, dic: dict, output_file: str) -> None:
     with open(encode_file, "r") as f:
         encode = f.read()
         f.close()
