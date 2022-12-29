@@ -26,7 +26,7 @@ def encode_file(file: str, code: str, output: str) -> None:
     output_file.close()
 
 
-def decode_file(encode_file: str, code: dict, output_file: str) -> None :
+def decode_file(encode_file: str, code: dict, output_file: str) -> None:
     with open(encode_file, "r") as f:
         encode = f.read()
         f.close()
@@ -46,12 +46,7 @@ def decode_file(encode_file: str, code: dict, output_file: str) -> None :
                     break
         encode = encode[len(key) :]
         out += dic[key]
-    
-    with open(output_file, "w") as f : 
+
+    with open(output_file, "w") as f:
         f.write(out)
         f.close()
-
-
-dic = {v: k for k, v in get_code_from_file("english.coder").items()}
-encode_file("data/sample-01.txt", "english.coder", "sample-01-encode.txt")
-decode_file("sample-01-encode.txt",dic, "sample-01-decode.txt")

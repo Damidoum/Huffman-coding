@@ -53,7 +53,3 @@ class Language:
             f.close()
 
 
-english = Language("english")
-english.train("data/english.txt")
-english.generate_code()
-english.save_code("english.coder")
