@@ -60,15 +60,14 @@ english = Language("english")
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("file")
-    parser.add_argument("--coder", "-c")
+    parser.add_argument("--coder", "-c", default="")
     args = parser.parse_args()
 
     english.train(args.file)
-    if args.coder != None:
-        if args.coder != "":
-            english.generate_code()
-            english.save_code(args.coder)
-        else:
-            name_file = args.file.split(".")[0] + ".coder"
-            english.generate_code()
-            english.save_code(name_file)
+    if args.coder != "":
+        english.generate_code()
+        english.save_code(args.coder)
+    else:
+        name_file = args.file.split(".")[0] + ".coder"
+        english.generate_code()
+        english.save_code(name_file)

@@ -17,8 +17,8 @@ def get_code_from_file(file: str) -> dict:
     return dic
 
 
-def encode_file(file: str, code: str, output: str) -> None:
-    dic = get_code_from_file(code)
+def encode_file(file: str, code: dict, output: str) -> None:
+    dic = code.copy()
     output_file = open(output, "w")
     with open(file, "r") as f:
         for line in f.readlines():
@@ -30,6 +30,7 @@ def encode_file(file: str, code: str, output: str) -> None:
 
 
 def decode_file(encode_file: str, dic: dict, output_file: str) -> None:
+    dic = {v: k for k, v in dic.items()}
     with open(encode_file, "r") as f:
         encode = f.read()
         f.close()
@@ -62,3 +63,23 @@ if __name__ == "__main__":
     parser.add_argument("--output", "-o")
     parser.add_argument("--coder", "-c", default="english.coder")
     args = parser.parse_args()
+
+    code = get_code_from_file(args.coder)
+
+    if args.decode == None:
+        # we are encoding
+        if args.output == None:
+            output = args.file.split(".")[0] + ".huff"
+        else:
+            output = args.output
+        encode_file(args.file, code, output)
+
+    else:
+        # we are decoding
+        print("je suis là")
+        if args.output == None:
+            output = args.file.split(".")[0] + ".txt"
+        else:
+            output = args.output
+        decode_file(args.file, code, output)
+        print("done")
