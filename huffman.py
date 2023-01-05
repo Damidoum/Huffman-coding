@@ -76,10 +76,8 @@ if __name__ == "__main__":
 
     else:
         # we are decoding
-        print("je suis là")
         if args.output == None:
             output = args.file.split(".")[0] + ".txt"
         else:
             output = args.output
         decode_file(args.file, code, output)
-        print("done")
