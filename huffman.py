@@ -74,6 +74,32 @@ def decode_file(encoded_file: str, dic: dict, output_file: str) -> None:
         f.close()
 
 
+def encode_file_bin(file: str, dic: dict, output: str) -> None:
+    """Encoding a file in a binary file"""
+    code = dic.copy()  # copy the code of the letters
+    output_file = open(output, "wb")  # open the output file
+    encoded = ""
+    with open(file, "r") as f:
+        for line in f.readlines():
+            for letter in line[:-1]:
+                encoded += code[letter]
+        f.close()
+
+    for k in range(0, len(encoded) - len(encoded) % 8, 8):
+        seq = encoded[k : k + 8]
+        num = 0
+        for k in range(8):
+            num += int(seq[k]) * (2 ** (7 - k))
+        output_file.write(num.to_bytes(1))
+
+    seq = encoded[len(encoded) - len(encoded) % 8 :]
+    num = 0
+    for k in range(len(seq)):
+        num += int(seq[k]) * (2 ** (7 - k))
+    output_file.write(num.to_bytes(1))
+    output_file.close()
+
+
 if __name__ == "__main__":
     # creating argument parser
     parser = argparse.ArgumentParser()
