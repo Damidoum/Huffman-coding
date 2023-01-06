@@ -31,6 +31,7 @@ def encode_file(file: str, dic: dict, output: str) -> None:
     with open(file, "r") as f:
         for line in f.readlines():
             for letter in line[:-1]:
+                print(letter)
                 output_file.write(code[letter])
             output_file.write(code["\n"])
         f.close()
@@ -83,8 +84,8 @@ def encode_file_bin(file: str, dic: dict, output: str) -> None:
         for line in f.readlines():
             for letter in line[:-1]:
                 encoded += code[letter]
+            encoded += code["\n"]
         f.close()
-
     for k in range(0, len(encoded) - len(encoded) % 8, 8):
         seq = encoded[k : k + 8]
         num = 0
@@ -92,12 +93,72 @@ def encode_file_bin(file: str, dic: dict, output: str) -> None:
             num += int(seq[k]) * (2 ** (7 - k))
         output_file.write(num.to_bytes(1))
 
-    seq = encoded[len(encoded) - len(encoded) % 8 :]
+    # last byte
+    l = len(encoded) % 8
+    seq = encoded[len(encoded) - l :]
     num = 0
     for k in range(len(seq)):
         num += int(seq[k]) * (2 ** (7 - k))
     output_file.write(num.to_bytes(1))
+
+    # we need to know how many bit are important in the last byte. We encode this number (which is l) in an other byte.
+    output_file.write(l.to_bytes(1))
     output_file.close()
+
+
+def int_to_byteString(n: int) -> str:
+    """convert integer into a string representing his byte writing"""
+    seq = str(bin(n))[2:]
+    l = len(seq)
+    return (8 - l) * "0" + seq
+
+
+def decode_file_bin(encoded_file: str, dic: dict, output_file: str) -> None:
+    """decode an encoded binary file"""
+    # for decoding we need to swap keys and values of the dictionary
+    code = {v: k for k, v in dic.items()}
+
+    with open(encoded_file, "rb") as f:
+        encode_bin = f.read()
+        f.close()
+
+    # we want to convert these byte into string of 0 and 1
+    encoded = ""
+    for byte in list(encode_bin):
+        encoded += int_to_byteString(byte)
+    l = encoded[-8:]
+    encoded = encoded[:-8]
+    num = 0
+    for k in range(8):
+        num += int(l[k]) * (2 ** (7 - k))
+    encoded = encoded[: -8 + num]
+
+    decode = ""  # decoded text
+
+    # we try to find wich sequence of 0 and 1 we are reading
+    while len(encoded) > 0:
+        key = ""
+        count = 1
+        possibilities = (
+            code.keys()
+        )  # differents possibilites of sequence, at the beging all sequence are possibled
+
+        while len(possibilities) > 1:
+            # at each passage in the loop we reduce the possibilities by looking at the next character of the file
+            for char in encoded:
+                key += char
+                # update possibilities
+                possibilities = [x for x in possibilities if x[:count] == key]
+                count += 1
+                if len(possibilities) == 1:
+                    break
+        encoded = encoded[len(key) :]
+        decode += code[key]
+
+    # writing the result in a file
+    with open(output_file, "w") as f:
+        f.write(decode)
+        f.close()
 
 
 if __name__ == "__main__":
