@@ -80,6 +80,7 @@ if __name__ == "__main__":
     parser.add_argument("file")
     parser.add_argument("--coder", "-c")
     parser.add_argument("--language", "-l", default="english")
+    parser.add_argument("-f", "--freq", default=False, action="store_true")
     args = parser.parse_args()
 
     # Train the Language -> counting letters
@@ -92,3 +93,6 @@ if __name__ == "__main__":
         name_file = "output/codes/" + str(Path(args.file).stem) + ".coder"
         english.generate_code()
         english.save_code(name_file)
+
+    if args.freq:
+        print(language[args.language].code)
