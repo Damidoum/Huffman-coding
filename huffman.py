@@ -3,30 +3,18 @@
 
 import argparse
 from pathlib import Path
+from utilities import (
+    int_to_bytes,
+    bytes_to_int,
+    decode,
+    get_code_from_file,
+    which_reader,
+)
 
 
-def get_code_from_file(file: str) -> dict:
-    """import the code of each letter from a file"""
-    dic = {}
-    # reading the file to make dictionary
-    with open(file, "r") as f:
-        content = f.read()[1:-1].split(", ")
-        for part in content:
-            char = part.split(": ")
-            key, val = char[0][1:-1], char[1][1:-1]
-            dic[key] = val
-        f.close()
-
-    # replacing \\n by \n
-    if "\\n" in dic.keys():
-        dic["\n"] = dic["\\n"]
-        del dic["\\n"]
-    return dic
-
-
-def encode_file(file: str, dic: dict, output: str) -> None:
+def encode_file(file: str, huf_dic: dict, output: str) -> None:
     """Encoding a file"""
-    code = dic.copy()  # copy the code of the letters
+    code = huf_dic.copy()  # copy the code of the letters
     output_file = open(output, "w")  # open the output file
     with open(file, "r") as f:
         for line in f.readlines():
@@ -37,9 +25,9 @@ def encode_file(file: str, dic: dict, output: str) -> None:
     output_file.close()
 
 
-def encode_file_bin(file: str, dic: dict, output: str) -> None:
+def encode_file_bin(file: str, huf_dic: dict, output: str) -> None:
     """Encoding a file in a binary file"""
-    code = dic.copy()  # copy the code of the letters
+    code = huf_dic.copy()  # copy the code of the letters
     output_file = open(output, "wb")  # open the output file
     encoded = ""
     with open(file, "r") as f:
@@ -68,95 +56,37 @@ def encode_file_bin(file: str, dic: dict, output: str) -> None:
     output_file.close()
 
 
-def int_to_byteString(n: int) -> str:
-    """convert integer into a string representing his byte writing"""
-    seq = str(bin(n))[2:]
-    l = len(seq)
-    return (8 - l) * "0" + seq
-
-
-def decode_file(encoded_file: str, dic: dict, output_file: str) -> None:
+def decode_file(encoded_file: str, huf_dic: dict, output_file: str, bin: bool) -> None:
     """decode an encoded file"""
     # for decoding we need to swap keys and values of the dictionary
-    code = {v: k for k, v in dic.items()}
+    code = {v: k for k, v in huf_dic.items()}
 
-    with open(encoded_file, "r") as f:
-        encode = f.read()
+    with open(encoded_file, which_reader(bin)) as f:
+        encoded_string = f.read()
         f.close()
 
-    decode = ""  # decoded text
+    if bin:
+        # we need to modify a little bit the data
+        encoded = ""  # content of the encoded file
+        for k in list(encoded_string):
+            encoded += int_to_bytes(k)
 
-    # we try to find wich sequence of 0 and 1 we are reading
-    while len(encode) > 0:
-        key = ""
-        count = 1
-        possibilities = (
-            code.keys()
-        )  # differents possibilites of sequence, at the beging all sequence are possibled
+        last_byte = encoded[
+            -8:
+        ]  # get the last byte, tells us how many bits are important in the penultimate byte
+        encoded = encoded[:-8]  # remove the last byte
+        encoded = encoded[
+            : -8 + bytes_to_int(last_byte)
+        ]  # only keep the right number of bits on the penultimate byte
 
-        while len(possibilities) > 1:
-            # at each passage in the loop we reduce the possibilities by looking at the next character of the file
-            for char in encode:
-                key += char
-                # update possibilities
-                possibilities = [x for x in possibilities if x[:count] == key]
-                count += 1
-                if len(possibilities) == 1:
-                    break
-        encode = encode[len(key) :]
-        decode += code[key]
+    else:
+        encoded = encoded_string
+
+    decoded = decode(encoded, code)
 
     # writing the result in a file
     with open(output_file, "w") as f:
-        f.write(decode)
-        f.close()
-
-
-def decode_file_bin(encoded_file: str, dic: dict, output_file: str) -> None:
-    """decode an encoded binary file"""
-    # for decoding we need to swap keys and values of the dictionary
-    code = {v: k for k, v in dic.items()}
-
-    with open(encoded_file, "rb") as f:
-        encode_bin = f.read()
-        f.close()
-
-    # we want to convert these byte into string of 0 and 1
-    encoded = ""
-    for byte in list(encode_bin):
-        encoded += int_to_byteString(byte)
-    l = encoded[-8:]
-    encoded = encoded[:-8]
-    num = 0
-    for k in range(8):
-        num += int(l[k]) * (2 ** (7 - k))
-    encoded = encoded[: -8 + num]
-
-    decode = ""  # decoded text
-
-    # we try to find wich sequence of 0 and 1 we are reading
-    while len(encoded) > 0:
-        key = ""
-        count = 1
-        possibilities = (
-            code.keys()
-        )  # differents possibilites of sequence, at the beging all sequence are possibled
-
-        while len(possibilities) > 1:
-            # at each passage in the loop we reduce the possibilities by looking at the next character of the file
-            for char in encoded:
-                key += char
-                # update possibilities
-                possibilities = [x for x in possibilities if x[:count] == key]
-                count += 1
-                if len(possibilities) == 1:
-                    break
-        encoded = encoded[len(key) :]
-        decode += code[key]
-
-    # writing the result in a file
-    with open(output_file, "w") as f:
-        f.write(decode)
+        f.write(decoded)
         f.close()
 
 
@@ -192,17 +122,8 @@ if __name__ == "__main__":
 
     else:
         # we are decoding
-        if not args.bin:
-            # not in a bin file
-            if args.output == None:
-                output = "output/huf/" + str(Path(args.file).stem) + ".txt"
-            else:
-                output = args.output
-            decode_file(args.file, code, output)
+        if args.output == None:
+            output = "output/decoded/" + str(Path(args.file).stem) + ".txt"
         else:
-            # in a bin file
-            if args.output == None:
-                output = "output/bin/" + str(Path(args.file).stem) + ".txt"
-            else:
-                output = args.output
-            decode_file_bin(args.file, code, output)
+            output = args.output
+        decode_file(args.file, code, output, args.bin)
