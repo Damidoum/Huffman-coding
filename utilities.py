@@ -8,7 +8,7 @@ def int_to_bytes(n: int) -> str:
         return seq
 
 
-def bytes_to_int(s: str) -> bytes:
+def bytes_to_int(s: str) -> int:
     """convert a STRING of 0 and 1 into int"""
     n = len(s)
     num = 0
@@ -23,6 +23,14 @@ def which_reader(bin):
         return "rb"
     else:
         return "r"
+
+
+def which_writer(bin):
+    """if bin is true we write as 'wb', if not we read as 'w'"""
+    if bin:
+        return "wb"
+    else:
+        return "w"
 
 
 def get_code_from_file(file: str) -> dict:

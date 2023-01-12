@@ -9,19 +9,49 @@ from utilities import (
     decode,
     get_code_from_file,
     which_reader,
+    which_writer,
 )
 
 
-def encode_file(file: str, huf_dic: dict, output: str) -> None:
+def encode_file(file: str, huf_dic: dict, output: str, bin: bool) -> None:
     """Encoding a file"""
     code = huf_dic.copy()  # copy the code of the letters
     output_file = open(output, "w")  # open the output file
+    encoded = ""
     with open(file, "r") as f:
         for line in f.readlines():
-            for letter in line[:-1]:
-                output_file.write(code[letter])
-            output_file.write(code["\n"])
+            for letter in line:
+                # converting the letter into string of 0 and 1
+                encoded += code[letter]
         f.close()
+    output_file.write(encoded)
+    output_file.close()
+
+
+def encode(file: str, huf_dic: dict, output: str, bin: bool) -> None:
+    """Encoding a file"""
+    code = huf_dic.copy()  # copy the code of the letters
+    output_file = open(output, which_writer(bin))  # open the output file
+    encoded = ""
+    with open(file, "r") as f:
+        for line in f.readlines():
+            for letter in line:
+                # converting the letter into string of 0 and 1
+                encoded += code[letter]
+        f.close()
+    if not bin:
+        output_file.write(encoded)
+    else:
+        for k in range(0, len(encoded) - len(encoded) % 8, 8):
+            seq = encoded[k : k + 8]
+            output_file.write(bytes_to_int(seq).to_bytes(1))
+
+        # last byte
+        l = len(encoded) % 8
+        seq = encoded[len(encoded) - l :]
+        output_file.write(bytes_to_int(seq).to_bytes(1))
+        # we need to know how many bit are important in the last byte. We encode this number (which is l) in an other byte.
+        output_file.write(l.to_bytes(1))
     output_file.close()
 
 
@@ -90,7 +120,26 @@ def decode_file(encoded_file: str, huf_dic: dict, output_file: str, bin: bool) -
         f.close()
 
 
-if __name__ == "__main__":
+"""encode(
+    "data/sample-01.txt",
+    get_code_from_file("output/codes/english.coder"),
+    "output/bin/sample-01.huf",
+    True,
+)"""
+
+encode_file_bin(
+    "data/sample-01.txt",
+    get_code_from_file("output/codes/english.coder"),
+    "output/bin/sample-012.huf",
+)
+decode_file(
+    "output/bin/sample-012.huf",
+    get_code_from_file("output/codes/english.coder"),
+    "output/decoded/sample-0123.txt",
+    True,
+)
+
+if __name__ != "__main__":
     # creating argument parser
     parser = argparse.ArgumentParser()
     parser.add_argument("file")
@@ -111,7 +160,7 @@ if __name__ == "__main__":
                 output = "output/huf/" + str(Path(args.file).stem) + ".huf"
             else:
                 output = args.output
-            encode_file(args.file, code, output)
+            encode_file(args.file, code, output, False)
         else:
             # in a bin file
             if args.output == None:
