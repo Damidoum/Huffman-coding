@@ -57,7 +57,7 @@ def save_huff_graph(huf_dic: dict, output_file: str, bin: bool):
                 f.write(last_byte)
 
 
-def read_key_val(s: str):
+def read_key_val_huff_graph(s: str) -> tuple(str, str, str):
     # first step : read the first byte, how many bytes to encode the key ?
     how_many_bytes = int(s[:8], 2)
     s = s[8:]
@@ -66,17 +66,14 @@ def read_key_val(s: str):
     letter_utf8 = s[: 8 * how_many_bytes]
     key = int(letter_utf8, 2).to_bytes(how_many_bytes).decode("utf-8")
     s = s[8 * how_many_bytes :]
-    print(s)
 
     # third step : how many bytes required to encode the val ?
     how_many_bytes = int(s[:8], 2)
     s = s[8:]
-    print(s)
 
     # fourth step : read the val
     val = s[: 8 * how_many_bytes]
     s = s[8 * how_many_bytes :]
-    print(s)
 
     # fifth step : remove additional zeros
     how_many_zeros = int(s[:8], 2)
@@ -88,7 +85,18 @@ def read_key_val(s: str):
 def read_huff_graph(huff_graph_file: str, bin: bool) -> dict:
     huff_dic = {}
     if not bin:
-        pass
+        # text file
+        with open(huff_graph_file, "r") as f:
+            content = f.read()[1:-1].split(", ")
+            for part in content:
+                char = part.split(": ")
+                key, val = char[0][1:-1], char[1][1:-1]
+                huff_dic[key] = val
+            f.close()
+        # replacing \\n by \n
+        if "\\n" in huff_dic.keys():
+            huff_dic["\n"] = huff_dic["\\n"]
+            del huff_dic["\\n"]
     else:
         with open(huff_graph_file, "rb") as f:
             content = f.read()
@@ -98,6 +106,9 @@ def read_huff_graph(huff_graph_file: str, bin: bool) -> dict:
             encoded += int_to_bytes(k)
 
         while (len(encoded)) > 0:
-            key, val, encoded = read_key_val(encoded)
+            key, val, encoded = read_key_val_huff_graph(encoded)
             huff_dic[key] = val
     return huff_dic
+
+
+print(read_huff_graph("output/codes/sample-01.coder", False))

@@ -110,11 +110,7 @@ french = Language("français")
 deutsch = Language("german")
 language = {"english": english, "french": french, "deutsch": deutsch}
 
-english.train("data/sample-01.txt")
-english.generate_code()
-english.save_huff_graph("output/codes/test.code", True)
-
-if __name__ != "__main__":
+if __name__ == "__main__":
 
     # Creating an arguments parser
     parser = argparse.ArgumentParser()
@@ -129,8 +125,8 @@ if __name__ != "__main__":
 
     if args.coder != None:
         english.generate_code()
-        english.save_code(args.coder, args.bin)
+        english.save_huff_graph(args.coder, args.bin)
     else:
         name_file = "output/codes/" + str(Path(args.file).stem) + ".coder"
         english.generate_code()
-        english.save_code(name_file, args.bin)
+        english.save_huff_graph(name_file, args.bin)

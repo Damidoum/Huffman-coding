@@ -60,6 +60,60 @@ def get_code_from_file(file: str) -> dict:
     return dic
 
 
+def read_key_val_huff_graph(s: str):
+    # first step : read the first byte, how many bytes to encode the key ?
+    how_many_bytes = int(s[:8], 2)
+    s = s[8:]
+
+    # second step : read the letter which is encode in how_many_bytes bytes.
+    letter_utf8 = s[: 8 * how_many_bytes]
+    key = int(letter_utf8, 2).to_bytes(how_many_bytes).decode("utf-8")
+    s = s[8 * how_many_bytes :]
+
+    # third step : how many bytes required to encode the val ?
+    how_many_bytes = int(s[:8], 2)
+    s = s[8:]
+
+    # fourth step : read the val
+    val = s[: 8 * how_many_bytes]
+    s = s[8 * how_many_bytes :]
+
+    # fifth step : remove additional zeros
+    how_many_zeros = int(s[:8], 2)
+    val = val[how_many_zeros:]
+    s = s[8:]
+    return key, val, s
+
+
+def read_huff_graph(huff_graph_file: str, bin: bool) -> dict:
+    huff_dic = {}
+    if not bin:
+        # text file
+        with open(huff_graph_file, "r") as f:
+            content = f.read()[1:-1].split(", ")
+            for part in content:
+                char = part.split(": ")
+                key, val = char[0][1:-1], char[1][1:-1]
+                huff_dic[key] = val
+            f.close()
+        # replacing \\n by \n
+        if "\\n" in huff_dic.keys():
+            huff_dic["\n"] = huff_dic["\\n"]
+            del huff_dic["\\n"]
+    else:
+        with open(huff_graph_file, "rb") as f:
+            content = f.read()
+            f.close()
+        encoded = ""
+        for k in content:
+            encoded += int_to_bytes(k)
+
+        while (len(encoded)) > 0:
+            key, val, encoded = read_key_val_huff_graph(encoded)
+            huff_dic[key] = val
+    return huff_dic
+
+
 def decode(encoded, code):
     """decode a string of 0 and 1 with the huffman code"""
     decode = ""  # decoded file
