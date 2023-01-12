@@ -7,7 +7,7 @@ from utilities import (
     int_to_bytes,
     bytes_to_int,
     decode,
-    get_code_from_file,
+    read_huff_graph,
     which_reader,
     which_writer,
     how_many_bits_more,
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # get code of each letter
-    code = get_code_from_file(args.coder)
+    code = read_huff_graph(args.coder, args.bin)
 
     if not args.decode:
         # we are encoding
