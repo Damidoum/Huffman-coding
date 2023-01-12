@@ -8,6 +8,14 @@ def int_to_bytes(n: int) -> str:
         return seq
 
 
+def how_many_bits_more(l: int) -> int:
+    additional_bits = l % 8
+    if additional_bits == 0:
+        return additional_bits
+    else:
+        return 8 - additional_bits
+
+
 def bytes_to_int(s: str) -> int:
     """convert a STRING of 0 and 1 into int"""
     n = len(s)
