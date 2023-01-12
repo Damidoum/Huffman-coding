@@ -4,6 +4,7 @@ from collections import Counter
 import json
 import argparse
 from pathlib import Path
+from utilities import how_many_bits_more
 
 
 class Language:
@@ -59,12 +60,48 @@ class Language:
                 # adding a 1 to the strongest letters
                 self.code[char] = "1" + self.code.get(char, "")
 
-    def save_code(self, file) -> None:
+    def save_code(self, file, bin) -> None:
         """Save the code in a file"""
         with open(file, "w") as f:
             data = str(self.code)
             f.write(data)
             f.close()
+
+    def save_huff_graph(self, output_file: str, bin: bool):
+        """save the huff graph in a file (binary file if the option is True)"""
+        huf_dic = self.code
+        if not bin:
+            # saving in a text file
+            with open(output_file, "w") as f:
+                data = str(huf_dic)
+                f.write(data)
+                f.close()
+        else:
+            # saving in a binary file
+            with open(output_file, "wb") as f:
+                for key, val in huf_dic.items():
+                    key_utf8 = bytes(key, "utf-8")  # the key in the format utf-8
+                    f.write(
+                        len(key_utf8).to_bytes(1)
+                    )  # to decode we need to know how many bytes we use to encode the key
+                    f.write(key_utf8)  # encoding the key (letter)
+
+                    """to encode the value, we adopt the following scheme: 
+                    - a first byte to know how many bytes to encode the value
+                    - the binary code of the value
+                    - a last byte to know how many artificial 0s have been added in the first byte of the value (to fill the byte)
+                    ex for the val 1000011100 : 
+                    - 10 bits so we need 2 bytes, then we encode 2 : 00000010
+                    - then we encode the val in 2 bytes: 00000010 00011100
+                    - in the first byte we have 6 additional 0s so we encode 6 : 00000110
+                    -> 00000010 00000010 00011100 00000110"""
+                    how_many_bytes = len(val) // 8 + int(
+                        bool(len(val) % 8)
+                    )  # number of bytes required
+                    last_byte = how_many_bits_more(len(val)).to_bytes(1)
+                    f.write(how_many_bytes.to_bytes(1))
+                    f.write(int(val, 2).to_bytes(how_many_bytes))
+                    f.write(last_byte)
 
 
 # New Language : english
@@ -73,14 +110,18 @@ french = Language("français")
 deutsch = Language("german")
 language = {"english": english, "french": french, "deutsch": deutsch}
 
-if __name__ == "__main__":
+english.train("data/sample-01.txt")
+english.generate_code()
+english.save_huff_graph("output/codes/test.code", True)
+
+if __name__ != "__main__":
 
     # Creating an arguments parser
     parser = argparse.ArgumentParser()
     parser.add_argument("file")
     parser.add_argument("--coder", "-c")
     parser.add_argument("--language", "-l", default="english")
-    parser.add_argument("-f", "--freq", default=False, action="store_true")
+    parser.add_argument("-b", "--bin", default=False, action="store_true")
     args = parser.parse_args()
 
     # Train the Language -> counting letters
@@ -88,11 +129,8 @@ if __name__ == "__main__":
 
     if args.coder != None:
         english.generate_code()
-        english.save_code(args.coder)
+        english.save_code(args.coder, args.bin)
     else:
         name_file = "output/codes/" + str(Path(args.file).stem) + ".coder"
         english.generate_code()
-        english.save_code(name_file)
-
-    if args.freq:
-        print(language[args.language].code)
+        english.save_code(name_file, args.bin)
