@@ -60,13 +60,6 @@ class Language:
                 # adding a 1 to the strongest letters
                 self.code[char] = "1" + self.code.get(char, "")
 
-    def save_code(self, file, bin) -> None:
-        """Save the code in a file"""
-        with open(file, "w") as f:
-            data = str(self.code)
-            f.write(data)
-            f.close()
-
     def save_huff_graph(self, output_file: str, bin: bool):
         """save the huff graph in a file (binary file if the option is True)"""
         huf_dic = self.code
