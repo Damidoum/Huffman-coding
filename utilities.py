@@ -16,15 +16,6 @@ def how_many_bits_more(l: int) -> int:
         return 8 - additional_bits
 
 
-def bytes_to_int(s: str) -> int:
-    """convert a STRING of 0 and 1 into int"""
-    n = len(s)
-    num = 0
-    for k in range(n):
-        num += int(s[k]) * (2 ** (n - (k + 1)))
-    return num
-
-
 def which_reader(bin):
     """if bin is true we read as 'rb', if not we read as 'r'"""
     if bin:
