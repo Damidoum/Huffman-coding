@@ -74,26 +74,28 @@ class Language:
             with open(output_file, "wb") as f:
                 for key, val in huf_dic.items():
                     key_utf8 = bytes(key, "utf-8")  # the key in the format utf-8
-                    f.write(
-                        len(key_utf8).to_bytes(1)
-                    )  # to decode we need to know how many bytes we use to encode the key
+                    # to decode we need to know how many bytes we use to encode the key
+                    f.write(len(key_utf8).to_bytes(1))
                     f.write(key_utf8)  # encoding the key (letter)
 
                     """to encode the value, we adopt the following scheme: 
-                    - a first byte to know how many bytes to encode the value
-                    - the binary code of the value
+                    - a first byte to know how many bytes are necessary to encode the value
+                    - then the binary code of the value
                     - a last byte to know how many artificial 0s have been added in the first byte of the value (to fill the byte)
+                    (see utilities.how_many_bits_more for more explanation)
+                    
                     ex for the val 1000011100 : 
-                    - 10 bits so we need 2 bytes, then we encode 2 : 00000010
+                    - 10 bits -> we need 2 bytes, so we encode 2 : 00000010
                     - then we encode the val in 2 bytes: 00000010 00011100
                     - in the first byte we have 6 additional 0s so we encode 6 : 00000110
-                    -> 00000010 00000010 00011100 00000110"""
+                    return -> 00000010 00000010 00011100 00000110"""
+
                     how_many_bytes = len(val) // 8 + int(
                         bool(len(val) % 8)
-                    )  # number of bytes required
+                    )  # number of bytes required to encode the val
                     last_byte = how_many_bits_more(len(val)).to_bytes(1)
-                    f.write(how_many_bytes.to_bytes(1))
-                    f.write(int(val, 2).to_bytes(how_many_bytes))
+                    f.write(how_many_bytes.to_bytes(1)) 
+                    f.write(int(val, 2).to_bytes(how_many_bytes))  # encoding the val
                     f.write(last_byte)
 
 

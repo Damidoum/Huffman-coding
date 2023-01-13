@@ -85,7 +85,7 @@ def decode_file(
         # only keep the right number of bits on the first byte
         encoded = encoded[additional_bits:]
 
-    decoded = decode(encoded, code)
+    decoded = decode(encoded, code)  # using decode function from utilities.py
 
     # writing the result in a file
     with open(output_file_name, "w") as f:
@@ -101,10 +101,11 @@ if __name__ == "__main__":
     parser.add_argument("--output", "-o")
     parser.add_argument("--coder", "-c", default="output/codes/english.coder")
     parser.add_argument("--bin", "-b", default=False, action="store_true")
+    parser.add_argument("--code_bin", "-cb", default=False, action="store_true")
     args = parser.parse_args()
 
     # get code of each letter
-    code = read_huff_graph(args.coder, args.bin)
+    code = read_huff_graph(args.coder, args.code_bin)
 
     if not args.decode:
         # we are encoding
