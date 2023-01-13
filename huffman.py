@@ -128,7 +128,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # get code of each letter
-    huf_dic = read_huff_graph(args.coder, args.hufb)
+    huf_dic = read_huff_graph(args.coder, args.huff_graph_bin)
 
     if not args.decode:
         # we are encoding
