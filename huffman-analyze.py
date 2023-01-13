@@ -94,34 +94,36 @@ class Language:
                         bool(len(val) % 8)
                     )  # number of bytes required to encode the val
                     last_byte = how_many_bits_more(len(val)).to_bytes(1)
-                    f.write(how_many_bytes.to_bytes(1)) 
+                    f.write(how_many_bytes.to_bytes(1))
                     f.write(int(val, 2).to_bytes(how_many_bytes))  # encoding the val
                     f.write(last_byte)
 
 
 # New Language : english
 english = Language("english")
-french = Language("français")
-deutsch = Language("german")
-language = {"english": english, "french": french, "deutsch": deutsch}
 
 if __name__ == "__main__":
 
     # Creating an arguments parser
     parser = argparse.ArgumentParser()
-    parser.add_argument("file")
-    parser.add_argument("--coder", "-c")
-    parser.add_argument("--language", "-l", default="english")
-    parser.add_argument("-b", "--bin", default=False, action="store_true")
+    parser.add_argument("file_name")
+    parser.add_argument("--coder", "-c", help="choose the output file name")
+    parser.add_argument(
+        "-b",
+        "--bin",
+        default=False,
+        action="store_true",
+        help="save the graph in a bin file",
+    )
     args = parser.parse_args()
 
     # Train the Language -> counting letters
-    language[args.language].train(args.file)
+    english.train(args.file_name)
 
     if args.coder != None:
         english.generate_code()
         english.save_huff_graph(args.coder, args.bin)
     else:
-        name_file = "output/codes/" + str(Path(args.file).stem) + ".coder"
+        name_file = "huffman_graph/" + str(Path(args.file_name).stem) + ".coder"
         english.generate_code()
         english.save_huff_graph(name_file, args.bin)

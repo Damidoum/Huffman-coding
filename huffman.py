@@ -97,23 +97,48 @@ if __name__ == "__main__":
     # creating argument parser
     parser = argparse.ArgumentParser()
     parser.add_argument("file")
-    parser.add_argument("--decode", "-d", default=False, action="store_true")
-    parser.add_argument("--output", "-o")
-    parser.add_argument("--coder", "-c", default="output/codes/english.coder")
-    parser.add_argument("--bin", "-b", default=False, action="store_true")
-    parser.add_argument("--code_bin", "-cb", default=False, action="store_true")
+    parser.add_argument(
+        "--decode",
+        "-d",
+        default=False,
+        action="store_true",
+        help="use this parameter if you want to decode",
+    )
+    parser.add_argument("--output", "-o", help="choose the output file name")
+    parser.add_argument(
+        "--coder",
+        "-c",
+        default="huffman_graph/english.coder",
+        help="choose the huff graph, default : huffman_graph/english.coder",
+    )
+    parser.add_argument(
+        "--bin",
+        "-b",
+        default=False,
+        action="store_true",
+        help="encode in a bin file or decode a bin file",
+    )
+    parser.add_argument(
+        "--huff_graph_bin",
+        "-hufb",
+        default=False,
+        action="store_true",
+        help="use this parameter if the huff graph you want to use is store in a bin file",
+    )
     args = parser.parse_args()
 
     # get code of each letter
-    code = read_huff_graph(args.coder, args.code_bin)
+    huf_dic = read_huff_graph(args.coder, args.hufb)
 
     if not args.decode:
         # we are encoding
         if args.output == None:
-            output = "output/huf/" + str(Path(args.file).stem) + ".huf"
+            output = (
+                "output/huf/" + str(Path(args.file).stem) + args.bin * "_bin" + ".huf"
+            )
         else:
             output = args.output
-        encode_file(args.file, code, output, args.bin)
+        encode_file(args.file, huf_dic, output, args.bin)
 
     else:
         # we are decoding
@@ -121,4 +146,4 @@ if __name__ == "__main__":
             output = "output/decoded/" + str(Path(args.file).stem) + ".txt"
         else:
             output = args.output
-        decode_file(args.file, code, output, args.bin)
+        decode_file(args.file, huf_dic, output, args.bin)

@@ -166,3 +166,7 @@ poetry.toml
 
 
 # End of https://www.toptal.com/developers/gitignore/api/python
+
+data/huffman1.png 
+data/huffman2.png
+data/README.md
