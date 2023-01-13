@@ -14,6 +14,7 @@ Paramètres possibles :
 Ce fichier permet d'encoder et décoder des fichiers (compréssion). 
 
 Paramètres possibles :  
+- --decode / -d : si l'argument est passé on décode, sinon on encode. 
 - --output / -o : permet de choisir le nom du fichier dans lequel on enregistre la sortie. (optionnel) 
   (par défaut on sauve les fichiers encodés dans le dossier output/huf avec un .huf et on décode dans le dossier output/decoded)
 - --coder / -c : permet de choisir le graphe de Huffman utilisé pour encoder / decoder (optionnel)
